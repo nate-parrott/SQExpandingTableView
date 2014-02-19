@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "5FA9824118B40CFA00F62E37"
-               BuildableName = "SQBetaUI.app"
-               BlueprintName = "SQBetaUI"
-               ReferencedContainer = "container:SQBetaUI.xcodeproj">
+               BuildableName = "SQExpandingTableView.app"
+               BlueprintName = "SQExpandingTableView"
+               ReferencedContainer = "container:SQExpandingTableView.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "5FA9825C18B40CFA00F62E37"
-               BuildableName = "SQBetaUITests.xctest"
-               BlueprintName = "SQBetaUITests"
-               ReferencedContainer = "container:SQBetaUI.xcodeproj">
+               BuildableName = "SQExpandingTableViewTests.xctest"
+               BlueprintName = "SQExpandingTableViewTests"
+               ReferencedContainer = "container:SQExpandingTableView.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -43,9 +43,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5FA9824118B40CFA00F62E37"
-            BuildableName = "SQBetaUI.app"
-            BlueprintName = "SQBetaUI"
-            ReferencedContainer = "container:SQBetaUI.xcodeproj">
+            BuildableName = "SQExpandingTableView.app"
+            BlueprintName = "SQExpandingTableView"
+            ReferencedContainer = "container:SQExpandingTableView.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5FA9824118B40CFA00F62E37"
-            BuildableName = "SQBetaUI.app"
-            BlueprintName = "SQBetaUI"
-            ReferencedContainer = "container:SQBetaUI.xcodeproj">
+            BuildableName = "SQExpandingTableView.app"
+            BlueprintName = "SQExpandingTableView"
+            ReferencedContainer = "container:SQExpandingTableView.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -80,9 +80,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5FA9824118B40CFA00F62E37"
-            BuildableName = "SQBetaUI.app"
-            BlueprintName = "SQBetaUI"
-            ReferencedContainer = "container:SQBetaUI.xcodeproj">
+            BuildableName = "SQExpandingTableView.app"
+            BlueprintName = "SQExpandingTableView"
+            ReferencedContainer = "container:SQExpandingTableView.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:SQBetaUI.xcodeproj">
+      location = "self:SQExpandingTableView.xcodeproj">
    </FileRef>
 </Workspace>
