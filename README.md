@@ -8,4 +8,4 @@ A simple, UITableView-esque component that expands a single cell in focus as you
 
 ## Usage
 
-Instantiate a `SQExpandingTableView` view, set its `SQExpandingTableViewDelegate`, and call `-reloadAnimated:` . Look at `SQExampleViewController.m`.
+Drag `SQExpandingTableView.h` and `SQExpandingTableView.m` into your project. Instantiate a `SQExpandingTableView` view, set its `SQExpandingTableViewDelegate`, and call `-reloadAnimated:` . Look at `SQExampleViewController.m`.
