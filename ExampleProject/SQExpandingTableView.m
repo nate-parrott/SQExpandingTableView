@@ -7,6 +7,9 @@
 //
 
 #import "SQExpandingTableView.h"
+#define MAX_REUSE_QUEUE_SIZE 7
+
+#define RELOAD_Y_INTERVAL 150
 
 @implementation SQExpandingTableView
 
@@ -37,9 +40,12 @@
     self.scrollCoefficient = 1;
     
     _cellsAtIndices = [NSMutableDictionary new];
+    _reuseQueue = [NSMutableArray new];
 }
 #pragma mark API
 -(void)reloadAnimated:(BOOL)animated {
+    _lastFullLayoutUpdateY = MAXFLOAT;
+    
     _oldViews = _cellsAtIndices.allValues.mutableCopy;
     [_cellsAtIndices removeAllObjects];
     
@@ -77,6 +83,16 @@
     [self.scrollView setContentOffset:CGPointMake(0, y) animated:animated];
     [self.delegate tableView:self willExpandViewAtIndex:index];
 }
+-(UIView*)dequeueViewForReuse {
+    if (_reuseQueue.count) {
+        UIView* v = _reuseQueue.lastObject;
+        v.hidden = NO;
+        [_reuseQueue removeLastObject];
+        return v;
+    } else {
+        return nil;
+    }
+}
 #pragma mark Layout
 -(CGFloat)maxScroll {
     return ([self contentHeight] - [self.delegate heightForCellsInTableView:self]) / self.scrollCoefficient;
@@ -94,6 +110,13 @@
         _scrollView.contentSize = contentSize;
     }
     
+    BOOL fullLayoutUpdate = fabsf(_lastFullLayoutUpdateY - _scrollView.contentOffset.y) > RELOAD_Y_INTERVAL;
+    if (fullLayoutUpdate) {
+        _lastFullLayoutUpdateY = _scrollView.contentOffset.y;
+        _layoutStartIndex = 0;
+        _layoutStartY = 0;
+    }
+    
     CGFloat scrollProgress = _scrollView.contentOffset.y / [self maxScroll];
     CGFloat yAdjust = scrollProgress * ([self maxScroll] - [self contentHeight] + self.bounds.size.height);
     
@@ -102,15 +125,33 @@
     CGFloat cellHeight = [self.delegate heightForCellsInTableView:self];
     CGFloat expandedCellHeight = [self.delegate expandedHeightForCellsInTableView:self];
     
-    CGRect visibleRect = CGRectMake(0, _scrollView.contentOffset.y, self.bounds.size.width, self.bounds.size.height);
+    CGRect visibleRect = CGRectMake(0, _scrollView.contentOffset.y-RELOAD_Y_INTERVAL, self.bounds.size.width, self.bounds.size.height+RELOAD_Y_INTERVAL*2);
     
-    CGFloat y = yAdjust;
-    for (int i=0; i<[self.delegate numberOfRowsInTableView:self]; i++) {
-        CGFloat expansion = MAX(0, 1-MAX(i-expandedRow, expandedRow-i));
+    // expansion cooling: gradually turn off the expansion effect above certain velocities
+    CGFloat expansionCoolingStartVelocity = 900;
+    CGFloat expansionCoolingEndVelocity = 1300;
+    CGFloat velocity = fabsf(_scrollViewVelocity.y);
+    CGFloat kExpansion = 1;
+    if (velocity > expansionCoolingEndVelocity) {
+        kExpansion = 0;
+    } else if (velocity > expansionCoolingStartVelocity) {
+        kExpansion = 1-(velocity - expansionCoolingStartVelocity)/(expansionCoolingEndVelocity-expansionCoolingStartVelocity);
+    }
+    //NSLog(@"%f, %f", velocity, kExpansion);
+    
+    BOOL lastRowWasVisible = NO;
+    
+    CGFloat y = _layoutStartY + yAdjust;
+    for (int i=_layoutStartIndex; i<[self.delegate numberOfRowsInTableView:self]; i++) {
+        CGFloat expansion = MAX(0, 1-MAX(i-expandedRow, expandedRow-i)) * kExpansion;
         CGFloat height = expansion*expandedCellHeight + (1-expansion)*cellHeight;
         
         CGRect frame = CGRectMake(0, y, self.bounds.size.width, height);
         BOOL visible = CGRectIntersectsRect(visibleRect, frame);
+        
+        if (lastRowWasVisible && !visible && !fullLayoutUpdate) {
+            break;
+        }
         
         UIView* view = _cellsAtIndices[@(i)];
         if (visible) {
@@ -150,14 +191,22 @@
                     [UIView animateWithDuration:0.3 animations:^{
                         view.frame = frame;
                     } completion:^(BOOL finished) {
-                        [view removeFromSuperview];
+                        [self removeFromSuperview];
                     }];
                 } else {
-                    [view removeFromSuperview];
+                    if (_reuseQueue.count < MAX_REUSE_QUEUE_SIZE) {
+                        view.hidden = YES;
+                        if ([view respondsToSelector:@selector(prepareForReuse)]) {
+                            [(id<SQExpandingTableViewRowView>)view prepareForReuse];
+                        }
+                        [_reuseQueue addObject:view];
+                    } else {
+                        [view removeFromSuperview];
+                    }
                 }
             }
         }
-        
+        lastRowWasVisible = visible;
         y += height;
     }
 }
@@ -175,6 +224,9 @@
     }
     [self willExpandCellAtIndex:index];
 }
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    _scrollViewVelocity = CGPointZero;
+}
 -(void)willExpandCellAtIndex:(int)index {
     self.currentlyExpandedCell = index;
     if (_cellsAtIndices[@(index)]) {
@@ -184,6 +236,14 @@
     }
 }
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+    NSTimeInterval dt = now - _lastScrollTime;
+    if (dt < 0.2) {
+        _scrollViewVelocity = CGPointMake((scrollView.contentOffset.x-_lastContentOffset.x)/dt, (scrollView.contentOffset.y-_lastContentOffset.y)/dt);
+    }
+    _lastScrollTime = now;
+    _lastContentOffset = scrollView.contentOffset;
+    
     [self setNeedsLayout];
 }
 -(void)scrollViewDidScrollToTop:(UIScrollView *)scrollView {

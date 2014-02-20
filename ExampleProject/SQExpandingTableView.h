@@ -20,10 +20,25 @@
 
 @end
 
+// this is an optional protocol that views used as rows can implement:
+@protocol SQExpandingTableViewRowView <NSObject>
+@optional
+-(void)prepareForReuse;
+@end
+
 
 @interface SQExpandingTableView : UIView <UIScrollViewDelegate> {
     NSMutableDictionary* _cellsAtIndices;
     BOOL _animateLayoutChanges;
+    CGFloat _lastFullLayoutUpdateY;
+    NSMutableArray* _reuseQueue;
+    
+    int _layoutStartIndex;
+    CGFloat _layoutStartY;
+    
+    NSTimeInterval _lastScrollTime;
+    CGPoint _lastContentOffset;
+    CGPoint _scrollViewVelocity;
 }
 
 @property(strong)UIScrollView* scrollView;
@@ -36,6 +51,8 @@
 @property(strong,readonly)NSMutableArray* oldViews;
 
 -(void)scrollToCellAtIndex:(int)index animated:(BOOL)animated;
+
+-(UIView*)dequeueViewForReuse;
 
 @property CGFloat scrollCoefficient;
 

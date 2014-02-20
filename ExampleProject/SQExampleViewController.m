@@ -71,20 +71,23 @@
     }
     
     if (!view) {
-        view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 40)];
-        UILabel* l = [UILabel new];
-        l.tag = 1;
-        l.font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:24];
-        [view addSubview:l];
-        l.frame = view.bounds;
-        l.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin|UIViewAutoresizingFlexibleWidth;
-        l.text = word;
-        l.textAlignment = NSTextAlignmentCenter;
-        view.layer.borderColor = [UIColor blackColor].CGColor;
-        view.layer.borderWidth = 1;
-        view.clipsToBounds = YES;
-        UITapGestureRecognizer* gestureRec = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
-        [view addGestureRecognizer:gestureRec];
+        view = [tableView dequeueViewForReuse];
+        if (!view) {
+            view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 40)];
+            UILabel* l = [UILabel new];
+            l.tag = 1;
+            l.font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:24];
+            [view addSubview:l];
+            l.frame = view.bounds;
+            l.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin|UIViewAutoresizingFlexibleWidth;
+            l.textAlignment = NSTextAlignmentCenter;
+            view.layer.borderColor = [UIColor blackColor].CGColor;
+            view.layer.borderWidth = 1;
+            view.clipsToBounds = YES;
+            UITapGestureRecognizer* gestureRec = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
+            [view addGestureRecognizer:gestureRec];
+        }
+        [(UILabel*)[view viewWithTag:1] setText:word];
     }
     
     return view;
